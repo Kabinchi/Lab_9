@@ -60,3 +60,12 @@ jobs:
 
       - name: Run tests
         run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.configuration }}
+
+  analyze:
+    needs: [build-debug, build-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/ceckout@v4
+      - name: Run code analysis
+        run: dotnet tool install -g dotnet-format && dotnet format Tests/Tests.csproj
