@@ -6,6 +6,9 @@ namespace lab_9
     {
         public static double Result(double a, double b, double c, double x)
         {
+            if (c == 0)
+                throw new DivideByZeroException("Переменная c не должна быть нулём.");
+
             if (a < 0 && x != 0)
             {
                 return a * Math.Pow(x, 2) + Math.Pow(b, 2) * x;

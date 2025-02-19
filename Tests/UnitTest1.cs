@@ -26,15 +26,13 @@ namespace lab_9
         public void Test_All_Zero()
         {
             double a = 0, b = 0, c = 0, x = 0;
-            double result = MathFunctions.Result(a, b, c, x);
-            double expected = 1 + x / c;
-            Assert.Equal(expected, result);
+            Assert.Throws<DivideByZeroException>(() => MathFunctions.Result(a, b, c, x));
         }
 
         [Fact]
         public void Test_Other()
         {
-            double a = 1, b = 2, c = 3, x = 4;
+            double a = 1, b = 2, c = 0, x = 4; 
             Assert.Throws<DivideByZeroException>(() => MathFunctions.Result(a, b, c, x));
         }
     }
