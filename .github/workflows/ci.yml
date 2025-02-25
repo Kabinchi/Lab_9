@@ -66,7 +66,7 @@ jobs:
         run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.configuration }}
 
   analyze:
-    if: github.ref == 'refs/heads/main'  # Выполняется только в ветке main
+    if: github.ref == 'refs/heads/main'  # Выполняется только в ветке man
     needs: [build-debug, build-release]
     runs-on: ubuntu-latest
     steps:
