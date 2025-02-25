@@ -22,7 +22,7 @@ jobs:
         run: dotnet build Input/Input.csproj --configuration Release
 
       - name: Загрузка артефактов
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-output  # Имя артефакта
           path: Input/bin/Release/  # Путь к файлам, которые нужно загрузить
