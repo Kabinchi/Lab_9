@@ -1,4 +1,4 @@
-name: Sequential Workflow с матричной стратегией
+name: Sequential Workflow с артефактами
 
 on: [push]
 
@@ -6,9 +6,6 @@ jobs:
   # Задача сборки проекта
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config: [Debug, Release]  # Матричная стратегия для разных конфигураций (Debug и Release)
     steps:
       - name: Клонирование репозитория
         uses: actions/checkout@v4
@@ -22,18 +19,26 @@ jobs:
         run: dotnet restore
 
       - name: Сборка проекта
-        run: dotnet build Input/Input.csproj --configuration ${{ matrix.config }}  # Используем переменную из матрицы
+        run: dotnet build Input/Input.csproj --configuration Release
+
+      - name: Загрузка артефактов
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output  # Имя артефакта
+          path: Input/bin/Release/  # Путь к файлам, которые нужно загрузить
 
   # Задача тестирования
   test:
-    needs: build  # Ожидаем завершения всех задач сборки
+    needs: build  # Ожидаем завершения задачи build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config: [Debug, Release]  # Матричная стратегия для разных конфигураций
     steps:
       - name: Клонирование репозитория
         uses: actions/checkout@v4
+
+      - name: Скачивание артефактов
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output  # Скачиваем артефакт, созданный в задаче build
 
       - name: Настройка .NET SDK
         uses: actions/setup-dotnet@v4
@@ -44,4 +49,4 @@ jobs:
         run: dotnet restore
 
       - name: Запуск тестов
-        run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.config }}
+        run: dotnet test Tests/Tests.csproj --configuration Release
