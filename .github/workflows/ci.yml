@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: Conditional Parallel Workflow
+=======
+name: Parallel Workflow
+>>>>>>> 260afe9 (Добавлено выполнение выполнение задач в файле .yml)
 
 on:
   push:
@@ -63,6 +67,7 @@ jobs:
         run: dotnet restore Tests/Tests.csproj
 
       - name: Run tests
+<<<<<<< HEAD
         run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.configuration }}
 
   analyze:
@@ -75,3 +80,6 @@ jobs:
 
       - name: Run code analysis
         run: dotnet tool install -g dotnet-format && dotnet format Tests/Tests.csproj
+=======
+        run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.configuration }}
+>>>>>>> 260afe9 (Добавлено выполнение выполнение задач в файле .yml)
