@@ -1,71 +1,39 @@
-name: Parallel Workflow
+name: Create Release and Upload Artifact
 
-on: [push]
+on:
+  push:
+    tags:
+      - 'v*' # Триггерится при создании тегов вида v1.0.0
 
 jobs:
-  build-debug:
+  create-release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Clear NuGet cache
-        run: rm -rf ~/.nuget/packages/
+      - name: Create zip archive
+        run: |
+          zip --junk-paths my-artifact README.md
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: '8.0.x'
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
 
-      - name: Restore dependencies
-        run: dotnet restore Input/Input.csproj
-
-      - name: Build Debug
-        run: dotnet build Input/Input.csproj --configuration Debug
-
-  build-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Upload artifact to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore Input/Input.csproj
-
-      - name: Build Release
-        run: dotnet build Input/Input.csproj --configuration Release
-
-  test:
-    needs: [build-debug, build-release]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        configuration: [Debug, Release]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore Tests/Tests.csproj
-
-      - name: Run tests
-        run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.configuration }}
-
-  analyze:
-    needs: [build-debug, build-release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run code analysis
-        run: dotnet tool install -g dotnet-format && dotnet format Tests/Tests.csproj
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # Получаем URL для загрузки из предыдущего шага
+          asset_path: ./artifact.zip # Путь к файлу, который нужно загрузить
+          asset_name: artifact.zip # Имя файла после загрузки
+          asset_content_type: application/zip # Тип содержимого файла
