@@ -1,77 +1,26 @@
-name: Conditional Parallel Workflow
+name: tags
 
 on:
   push:
-    branches:
-      - main       # Запускается в ветке main
-      - develop    # Запускается в ветке develop
+    tags:
+      - "release"
+
 
 jobs:
-  build-debug:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Clear NuGet cache
-        run: rm -rf ~/.nuget/packages/
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: zip
+        if: github.reg == 'refs/tags/release'
+        run: mkdir 
+          zip -r release.zip Input/bin/Release
+        
+      - name: artifact
+        if: github.reg == 'refs/tags/Release'
+        uses: actions/upload-artifact@v4
         with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore Input/Input.csproj
-
-      - name: Build Debug
-        run: dotnet build Input/Input.csproj --configuration Debug
-
-  build-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore Input/Input.csproj
-
-      - name: Build Release
-        run: dotnet build Input/Input.csproj --configuration Release
-
-  test:
-    needs: [build-debug, build-release]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        configuration: [Debug, Release]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore Tests/Tests.csproj
-
-      - name: Run tests
-        run: dotnet test Tests/Tests.csproj --configuration ${{ matrix.configuration }}
-
-  analyze:
-    if: github.ref == 'refs/heads/main'  # Выполняется только в ветке main
-    needs: [build-debug, build-release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run code analysis
-        run: dotnet tool install -g dotnet-format && dotnet format Tests/Tests.csproj
+          name: release
+          path: release.zip
