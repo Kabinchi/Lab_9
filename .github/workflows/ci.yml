@@ -2,9 +2,9 @@ name: Upload Release Asset
 
 on:
   push:
-    # Sequence of patterns matched against refs/tags
+    # Триггер срабатывает для тегов вида "release-*"
     tags:
-      - 'release'  # Триггер срабатывает только при пуше тега "release"
+      - 'release-*'
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}  # Используем имя тега (например, "release")
+          tag_name: ${{ github.ref_name }}  # Используем имя тега (например, "release-1.0.0")
           release_name: Release ${{ github.ref_name }}  # Название релиза
           draft: false  # Релиз не является черновиком
           prerelease: false  # Релиз не является предварительным
