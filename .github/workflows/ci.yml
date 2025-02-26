@@ -16,6 +16,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+              # Настройка .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'  # Укажи версию .NET, которую использует твой проект
+
+    # Восстановление зависимостей
+      - name: Restore dependencies
+        run: dotnet restore Input/Input.csproj
+
+    # Сборка проекта в конфигурации Release
+      - name: Build project
+        run: dotnet build Input/Input.csproj --configuration Release
+
       # Создание ZIP-архива из папки Input/bin/Release
       - name: Create ZIP archive
         run: |
